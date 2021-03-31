@@ -31,7 +31,7 @@ from openerp.exceptions import UserError
 from dateutil.parser import parse
 
 class AccountBankStatementImport(models.TransientModel):
-    _inherit = 'account.bank.statement.import'
+    _inherit = 'account.statement.import'
 
 
     format = fields.Selection([('iso20022', 'ISO 20022'), ('fidavista','FiDAViSta')], string='Format', default='iso20022')
@@ -59,11 +59,11 @@ class AccountBankStatementImport(models.TransientModel):
         return bank_acc
 
 
-    @api.onchange('format', 'data_file')
+    @api.onchange('format', 'statement_file')
     def _onchange_data_file(self):
-        if self.data_file and self.format in ['iso20022', 'fidavista']:
+        if self.statement_file and self.format in ['iso20022', 'fidavista']:
             # decoding and encoding for string parsing; parseString() method:
-            stringAsByte = "b'%s'" % self.data_file
+            stringAsByte = "b'%s'" % self.statement_file
             record = str(base64.decodestring(ast.literal_eval(stringAsByte)), 'iso8859-4', 'strict').encode('iso8859-4','strict')
             dom = parseString(record)
 

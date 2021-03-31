@@ -6,7 +6,7 @@
         <field name="model">account.bank.statement</field>
         <field name="inherit_id" ref="account.view_bank_statement_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='line_ids']/tree/field[@name='bank_account_id']" position="attributes">
+            <xpath expr="//field[@name='line_ids']/tree/field[@name='partner_bank_id']" position="attributes">
                 <attribute name="invisible">0</attribute>
                 <attribute name="groups">account.group_account_manager</attribute>
                 <attribute name="context">{'default_acc_number': partner_bank_account, 'default_partner_id': partner_id}</attribute>

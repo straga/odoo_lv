@@ -1,67 +1,67 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <record id="account_bank_transaction_type_search" model="ir.ui.view">
-        <field name="name">account.bank.transaction.type.search</field>
-        <field name="model">account.bank.transaction.type</field>
-        <field name="arch" type="xml">
-        	<search string="Bank Transaction Types">
-                <field name="name"/>
-                <field name="account_id"/>
-        	</search>
-        </field>
-    </record>
+        <record id="account_bank_transaction_type_search" model="ir.ui.view">
+            <field name="name">account.bank.transaction.type.search</field>
+            <field name="model">account.bank.transaction.type</field>
+            <field name="arch" type="xml">
+                <search string="Bank Transaction Types">
+                    <field name="name"/>
+                    <field name="account_id"/>
+                </search>
+            </field>
+        </record>
 
-    <record id="account_bank_transaction_type_tree" model="ir.ui.view">
-        <field name="name">account.bank.transaction.type.tree</field>
-        <field name="model">account.bank.transaction.type</field>
-        <field name="arch" type="xml">
-            <tree string="Bank Transaction Types">
-                <field name="name"/>
-                <field name="io"/>
-	            <field name="account_id"/>
-            </tree>
-        </field>
-    </record>
+        <record id="account_bank_transaction_type_tree" model="ir.ui.view">
+            <field name="name">account.bank.transaction.type.tree</field>
+            <field name="model">account.bank.transaction.type</field>
+            <field name="arch" type="xml">
+                <tree string="Bank Transaction Types">
+                    <field name="name"/>
+                    <field name="io"/>
+                    <field name="account_id"/>
+                </tree>
+            </field>
+        </record>
 
-    <record id="account_bank_transaction_type_form" model="ir.ui.view">
-        <field name="name">account.bank.transaction.type.form</field>
-        <field name="model">account.bank.transaction.type</field>
-        <field name="arch" type="xml">
-            <form string="Bank Transaction Types">
-                <sheet>
-                    <div class="oe_title">
-                        <label for="name" class="oe_edit_only"/>
-                        <h1>
-                            <field name="name" default_focus="1" class="oe_inline"/>
-                        </h1>
-                    </div>
-                    <group col="4">
-                        <field name="account_id" colspan="2"/>
-                        <field name="io" colspan="2"/>
-                    </group>
-                    <label for="description"/>
-                    <field name="description"/>
-                </sheet>
-            </form>
-        </field>
-    </record>
+        <record id="account_bank_transaction_type_form" model="ir.ui.view">
+            <field name="name">account.bank.transaction.type.form</field>
+            <field name="model">account.bank.transaction.type</field>
+            <field name="arch" type="xml">
+                <form string="Bank Transaction Types">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name" default_focus="1" class="oe_inline"/>
+                            </h1>
+                        </div>
+                        <group col="4">
+                            <field name="account_id" colspan="2"/>
+                            <field name="io" colspan="2"/>
+                        </group>
+                        <label for="description"/>
+                        <field name="description"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-    <record id="action_bank_transaction_type" model="ir.actions.act_window">
-        <field name="name">Bank Transaction Types</field>
-        <field name="res_model">account.bank.transaction.type</field>
-        <field name="view_mode">tree,form</field>
-        <field name="search_view_id" ref="account_bank_transaction_type_search"/>
-        <field name="context">{}</field>
-        <field name="help" type="html">
-            <p class="oe_view_nocontent_create">
-                Click to create a Bank Transaction Type. 
-            </p><p>
-           	    These Types will be used to select accounts and types for Bank Statement Lines, when importing a Bank Statement file.
-            </p>
-        </field>
-    </record>
+        <record id="action_bank_transaction_type" model="ir.actions.act_window">
+            <field name="name">Bank Transaction Types</field>
+            <field name="res_model">account.bank.transaction.type</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="account_bank_transaction_type_search"/>
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click to create a Bank Transaction Type.
+                </p><p>
+                    These Types will be used to select accounts and types for Bank Statement Lines, when importing a Bank Statement file.
+                </p>
+            </field>
+        </record>
 
-    <menuitem id="menu_bank_transaction_type" string="Bank Transaction Types" action="action_bank_transaction_type" parent="account.account_account_menu"/>
+        <menuitem id="menu_bank_transaction_type" name="Bank Transaction Types" action="action_bank_transaction_type" parent="account.account_account_menu"/>
 
 </odoo>

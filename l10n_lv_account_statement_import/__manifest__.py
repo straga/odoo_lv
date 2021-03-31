@@ -39,7 +39,7 @@ Bank Statement data import in the following formats:
     'website': 'http://www.allegro.lv',
     'images': [],
     'depends': [
-        'account_bank_statement_import'
+        'account_statement_import'
     ],
     'data': [
         'security/ir.model.access.csv',
