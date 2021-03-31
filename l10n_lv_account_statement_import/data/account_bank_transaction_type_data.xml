@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="bank_transaction_type_OUTP" model="account.bank.transaction.type">
+            <field name="name">OUTP</field>
+            <field name="io">-</field>
+            <field name="account_id" search="[('code','=','5310')]" model="account.account"/>
+        </record>
+
+        <record id="bank_transaction_type_NMSC" model="account.bank.transaction.type">
+            <field name="name">NMSC</field>
+            <field name="io">-</field>
+            <field name="account_id" search="[('code','=','5310')]" model="account.account"/>
+        </record>
+
+        <record id="bank_transaction_type_NINT" model="account.bank.transaction.type">
+            <field name="name">NINT</field>
+            <field name="io">-</field>
+            <field name="account_id" search="[('code','=','5310')]" model="account.account"/>
+        </record>
+
+        <record id="bank_transaction_type_MEMD" model="account.bank.transaction.type">
+            <field name="name">MEMD</field>
+            <field name="io">-</field>
+            <field name="account_id" search="[('code','=','5310')]" model="account.account"/>
+        </record>
+
+        <record id="bank_transaction_type_IZEJOSAIS_KLIRINGA_MAKSAJUMS" model="account.bank.transaction.type">
+            <field name="name">IZEJOŠAIS KLĪRINGA MAKSĀJUMS</field>
+            <field name="io">-</field>
+            <field name="account_id" search="[('code','=','5310')]" model="account.account"/>
+        </record>
+
+        <record id="bank_transaction_type_IZEJOSAIS_MAKSAJUMS" model="account.bank.transaction.type">
+            <field name="name">IZEJOŠAIS MAKSĀJUMS</field>
+            <field name="io">-</field>
+            <field name="account_id" search="[('code','=','5310')]" model="account.account"/>
+        </record>
+
+        <record id="bank_transaction_type_OTHR" model="account.bank.transaction.type">
+            <field name="name">OTHR</field>
+            <field name="io">-</field>
+            <field name="account_id" search="[('code','=','7750')]" model="account.account"/>
+        </record>
+
+        <record id="bank_transaction_type_NFEX" model="account.bank.transaction.type">
+            <field name="name">NFEX</field>
+            <field name="io">-</field>
+            <field name="account_id" search="[('code','=','7750')]" model="account.account"/>
+        </record>
+
+        <record id="bank_transaction_type_NCHG" model="account.bank.transaction.type">
+            <field name="name">NCHG</field>
+            <field name="io">-</field>
+            <field name="account_id" search="[('code','=','7750')]" model="account.account"/>
+        </record>
+
+        <record id="bank_transaction_type_KLIRINGA_KOMISIJA" model="account.bank.transaction.type">
+            <field name="name">KLĪRINGA KOMISIJA</field>
+            <field name="io">-</field>
+            <field name="account_id" search="[('code','=','7750')]" model="account.account"/>
+        </record>
+
+        <record id="bank_transaction_type_CHOU" model="account.bank.transaction.type">
+            <field name="name">CHOU</field>
+            <field name="account_id" search="[('code','=','2611')]" model="account.account"/>
+        </record>
+
+        <record id="bank_transaction_type_INP" model="account.bank.transaction.type">
+            <field name="name">INP</field>
+            <field name="io">+</field>
+            <field name="account_id" search="[('code','=','2310')]" model="account.account"/>
+        </record>
+
+        <record id="bank_transaction_type_MEMC" model="account.bank.transaction.type">
+            <field name="name">MEMC</field>
+            <field name="io">+</field>
+            <field name="account_id" search="[('code','=','2310')]" model="account.account"/>
+        </record>
+
+    </data>
+</odoo>

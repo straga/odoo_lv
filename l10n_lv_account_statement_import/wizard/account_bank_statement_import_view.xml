@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<odoo>
+
+    <record id="account_bank_statement_import_view_l10n_lv" model="ir.ui.view">
+        <field name="name">Import Bank Statements l10n_lv</field>
+        <field name="model">account.bank.statement.import</field>
+        <field name="inherit_id" ref="account_bank_statement_import.account_bank_statement_import_view"/>
+        <field name="arch" type="xml">
+            <ul id="statement_format" position="inside">
+                <label for="format"/>
+                <field name="format" class="oe_inline"/>
+            </ul>
+            <field name="data_file" position="after">
+                <field name="statement_info" attrs="{'invisible': [('data_file','=',False)]}"/>
+                <group attrs="{'invisible': [('wrong_balance','=',False)]}">
+		            <field name="flag"/>
+		            <field name="wrong_balance" invisible="1"/>
+                </group>
+            </field>
+        </field>
+    </record>
+
+</odoo>

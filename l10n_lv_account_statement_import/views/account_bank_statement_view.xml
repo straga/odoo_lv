@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_bank_statement_form_l10n_lv" model="ir.ui.view">
+        <field name="name">account.bank.statement.form.l10n.lv</field>
+        <field name="model">account.bank.statement</field>
+        <field name="inherit_id" ref="account.view_bank_statement_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='line_ids']/tree/field[@name='bank_account_id']" position="attributes">
+                <attribute name="invisible">0</attribute>
+                <attribute name="groups">account.group_account_manager</attribute>
+                <attribute name="context">{'default_acc_number': partner_bank_account, 'default_partner_id': partner_id}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='line_ids']/tree/field[@name='partner_id']" position="before">
+                <field name="transaction_type" invisible="1"/>
+                <field name="partner_name" invisible="1"/>
+                <field name="partner_reg_id" invisible="1"/>
+                <field name="partner_bank_account" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='line_ids']/tree/field[@name='partner_id']" position="attributes">
+                <attribute name="context">{'default_supplier': 1, 'default_name': partner_name and partner_name or '', 'default_vat': partner_reg_id and partner_reg_id or '', 'default_comment': partner_bank_account and ('Bank Account: '+partner_bank_account) or ''}</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

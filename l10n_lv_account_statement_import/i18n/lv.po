@@ -1,0 +1,216 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* l10n_lv_account_bank_statement_import
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 10.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-10-16 11:52+0000\n"
+"PO-Revision-Date: 2017-10-16 11:52+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,field_description:l10n_lv_account_bank_statement_import.field_account_bank_transaction_type__account_id
+msgid "Account"
+msgstr "Konts"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model,name:l10n_lv_account_bank_statement_import.model_account_bank_statement_line
+msgid "Bank Statement Line"
+msgstr "Bankas izraksta rinda"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.actions.act_window,name:l10n_lv_account_bank_statement_import.action_bank_transaction_type
+#: model:ir.model,name:l10n_lv_account_bank_statement_import.model_account_bank_transaction_type
+#: model:ir.ui.menu,name:l10n_lv_account_bank_statement_import.menu_bank_transaction_type
+#: model_terms:ir.ui.view,arch_db:l10n_lv_account_bank_statement_import.account_bank_transaction_type_form
+#: model_terms:ir.ui.view,arch_db:l10n_lv_account_bank_statement_import.account_bank_transaction_type_search
+#: model_terms:ir.ui.view,arch_db:l10n_lv_account_bank_statement_import.account_bank_transaction_type_tree
+msgid "Bank Transaction Types"
+msgstr "Bankas transakciju tipi"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.actions.act_window,help:l10n_lv_account_bank_statement_import.action_bank_transaction_type
+msgid "Click to create a Bank Transaction Type."
+msgstr "Spiediet šeit, lai izveidotu bankas transakciju tipu."
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,field_description:l10n_lv_account_bank_statement_import.field_account_bank_statement_import__flag
+msgid "Continue Anyway"
+msgstr "Turpināt, neņemot vērā"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,help:l10n_lv_account_bank_statement_import.field_account_bank_transaction_type__io
+msgid "Controls, whether the Amount of the transaction is positive or negative."
+msgstr "Nosaka, vai transakcijas summa ir pozitīva vai negatīva."
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,field_description:l10n_lv_account_bank_statement_import.field_account_bank_transaction_type__create_uid
+msgid "Created by"
+msgstr "Izveidojis"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,field_description:l10n_lv_account_bank_statement_import.field_account_bank_transaction_type__create_date
+msgid "Created on"
+msgstr "Izveidots"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,field_description:l10n_lv_account_bank_statement_import.field_account_bank_transaction_type__description
+msgid "Description"
+msgstr "Apraksts"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,field_description:l10n_lv_account_bank_statement_import.field_account_bank_transaction_type__display_name
+msgid "Display Name"
+msgstr "Attēlojamais nosaukums"
+
+#. module: l10n_lv_account_bank_statement_import
+#: selection:account.bank.statement.import,format:0
+msgid "FiDAViSta"
+msgstr "FiDAViSta"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,field_description:l10n_lv_account_bank_statement_import.field_account_bank_statement_import__format
+msgid "Format"
+msgstr "Formāts"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,field_description:l10n_lv_account_bank_statement_import.field_account_bank_transaction_type__io
+msgid "I/O"
+msgstr "Ien./Iz."
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,field_description:l10n_lv_account_bank_statement_import.field_account_bank_transaction_type__id
+msgid "ID"
+msgstr "ID"
+
+#. module: l10n_lv_account_bank_statement_import
+#: selection:account.bank.statement.import,format:0
+msgid "ISO 20022"
+msgstr "ISO 20022"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,help:l10n_lv_account_bank_statement_import.field_account_bank_statement_import__flag
+msgid "If checked, continues without comparing balances."
+msgstr "Ja atzīmēts, turpina bez bilanču salīdzināšanas."
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model,name:l10n_lv_account_bank_statement_import.model_account_bank_statement_import
+msgid "Import Bank Statement"
+msgstr "Bankas izraksta importēšana"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,field_description:l10n_lv_account_bank_statement_import.field_account_bank_transaction_type___last_update
+msgid "Last Modified on"
+msgstr "Pēdējo reizi labots"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,field_description:l10n_lv_account_bank_statement_import.field_account_bank_transaction_type__write_uid
+msgid "Last Updated by"
+msgstr "Pēdējo reizi atjaunojis"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,field_description:l10n_lv_account_bank_statement_import.field_account_bank_transaction_type__write_date
+msgid "Last Updated on"
+msgstr "Pēdējo reizi atjaunots"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,field_description:l10n_lv_account_bank_statement_import.field_account_bank_transaction_type__name
+msgid "Name"
+msgstr "Nosaukums"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,field_description:l10n_lv_account_bank_statement_import.field_account_bank_statement_line__partner_bank_account
+msgid "Partner Bank Account"
+msgstr "Partnera bankas konts"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,field_description:l10n_lv_account_bank_statement_import.field_account_bank_statement_line__partner_reg_id
+msgid "Partner Registration Number"
+msgstr "Partner reģistrācijas numurs"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,field_description:l10n_lv_account_bank_statement_import.field_account_bank_statement_import__statement_info
+msgid "Statement Info"
+msgstr "Izrakstu Informācija"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,help:l10n_lv_account_bank_statement_import.field_account_bank_transaction_type__account_id
+msgid "The account for the transaction."
+msgstr "Transakcijai paredzētais konts."
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.actions.act_window,help:l10n_lv_account_bank_statement_import.action_bank_transaction_type
+msgid "These Types will be used to select accounts and types for Bank Statement Lines, when importing a Bank Statement file."
+msgstr "Šie tipi tiks izmantoti bankas izraksta rindu kontu un tipu izvēlē, importējot bankas izraksta failu."
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,field_description:l10n_lv_account_bank_statement_import.field_account_bank_statement_line__transaction_type
+msgid "Trans. Type Code"
+msgstr "Trans. tipa kods"
+
+#. module: l10n_lv_account_bank_statement_import
+#: model:ir.model.fields,field_description:l10n_lv_account_bank_statement_import.field_account_bank_statement_import__wrong_balance
+msgid "Wrong Balance"
+msgstr "Nepareiza bilance"
+
+#. module: l10n_lv_account_bank_statement_import
+#: code:addons/l10n_lv_account_bank_statement_import/wizard/account_bank_statement_import.py:159
+#, python-format
+msgid "Last statement for selected account"
+msgstr "Pēdējais izraksts izvēlētajam bankas kontam"
+
+#. module: l10n_lv_account_bank_statement_import
+#: code:addons/l10n_lv_account_bank_statement_import/wizard/account_bank_statement_import.py:159
+#, python-format
+msgid "Ending Balance"
+msgstr "Noslēdzošā bilance"
+
+#. module: l10n_lv_account_bank_statement_import
+#: code:addons/l10n_lv_account_bank_statement_import/wizard/account_bank_statement_import.py:160
+#, python-format
+msgid "Statement to import"
+msgstr "Importējamais izraksts"
+
+#. module: l10n_lv_account_bank_statement_import
+#: code:addons/l10n_lv_account_bank_statement_import/wizard/account_bank_statement_import.py:160
+#, python-format
+msgid "Starting Balance"
+msgstr "Sākuma bilance"
+
+#. module: l10n_lv_account_bank_statement_import
+#: code:addons/l10n_lv_account_bank_statement_import/wizard/account_bank_statement_import.py:167
+#, python-format
+msgid "Balances do not match!"
+msgstr "Bilances nesakrīt!"
+
+#. module: l10n_lv_account_bank_statement_import
+#: code:addons/l10n_lv_account_bank_statement_import/wizard/account_bank_statement_import.py:167
+#, python-format
+msgid "The Ending Balance of the last Bank Statement (by date) imported for the Bank Account is not equal to the Starting Balance of this document."
+msgstr "Bankas konta pēdējā (pēc datuma) ielādētā bankas izraksta noslēdzošā bilance nesakrīt ar šajā dokumentā norādīto sākuma bilanci."
+
+#. module: l10n_lv_account_bank_statement_import
+#: code:addons/l10n_lv_account_bank_statement_import/wizard/account_bank_statement_import.py:181
+#, python-format
+msgid "The Ending Balance of the last Bank Statement (by date) imported for the Bank Account '%s' is not equal to the Starting Balance of this document. If this is OK with you, check the 'Continue Anyway' box and try to import again."
+msgstr "Bankas konta %s pēdējā (pēc datuma) ielādētā bankas izraksta noslēdzošā bilance nesakrīt ar šajā dokumentā norādīto sākuma bilanci. Ja uzskatāt, ka dati ir pareizi, atzīmējiet lauku 'Turpināt, neņemot vērā' un mēģiniet importēt vēlreiz."
+
+#. module: l10n_lv_account_bank_statement_import
+#: code:addons/l10n_lv_account_bank_statement_import/models/account_journal.py:38
+#, python-format
+msgid "Record Manually"
+msgstr "Manuāli ieraksti"
+
+#. module: l10n_lv_account_bank_statement_import
+#: code:addons/l10n_lv_account_bank_statement_import/models/account_journal.py:40
+#, python-format
+msgid "File Import"
+msgstr "Failu imports"
+
