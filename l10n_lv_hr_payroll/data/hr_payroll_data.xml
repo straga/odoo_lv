@@ -1,0 +1,1609 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Default values for Payslip Export -->
+
+        <record model="ir.config_parameter" id="cp_payslip_eds_export_responsible_id">
+            <field name="key">payslip_eds_export.responsible_id</field>
+            <field name="value" ref="hr.employee_admin"/>
+        </record>
+
+        <record model="ir.config_parameter" id="cp_payslip_eds_export_date_pay_day">
+            <field name="key">payslip_eds_export.date_pay_day</field>
+            <field name="value">31</field>
+        </record>
+
+    </data>
+    <data>
+
+        <!-- Salary Rule Categories -->
+
+        <record id="hr_payroll_category_BRUTOLV" model="hr.salary.rule.category">
+            <field name="name">Bruto alga (samaksa)</field>
+            <field name="code">BRUTOLV</field>
+        </record>
+
+        <record id="hr_payroll_category_BRUTOnLV" model="hr.salary.rule.category">
+            <field name="name">Bruto alga nodokļu aprēķinam</field>
+            <field name="code">BRUTOnLV</field>
+            <field name="parent_id" ref="l10n_lv_hr_payroll.hr_payroll_category_BRUTOLV"/>
+        </record>
+
+        <record id="hr_payroll_category_BRUTObLV" model="hr.salary.rule.category">
+            <field name="name">Bruto alga, kas neapliekas ar nodokļiem</field>
+            <field name="code">BRUTObLV</field>
+            <field name="parent_id" ref="l10n_lv_hr_payroll.hr_payroll_category_BRUTOLV"/>
+        </record>
+
+        <record id="hr_payroll_category_NDVLV" model="hr.salary.rule.category">
+            <field name="name">Nodevas</field>
+            <field name="code">NDVLV</field>
+        </record>
+
+        <record id="hr_payroll_category_VSAOILV" model="hr.salary.rule.category">
+            <field name="name">Valsts sociālās apdrošināšanas obligātās iemaksas</field>
+            <field name="code">VSAOILV</field>
+        </record>
+
+        <record id="hr_payroll_category_AFLV" model="hr.salary.rule.category">
+            <field name="name">Algu fonds</field>
+            <field name="code">AFLV</field>
+        </record>
+
+        <record id="hr_payroll_category_ATVLV" model="hr.salary.rule.category">
+            <field name="name">Atvieglojumi</field>
+            <field name="code">ATVLV</field>
+        </record>
+
+        <record id="hr_payroll_category_NODLV" model="hr.salary.rule.category">
+            <field name="name">Nodokļi</field>
+            <field name="code">NODLV</field>
+        </record>
+
+        <record id="hr_payroll_category_NETOLV" model="hr.salary.rule.category">
+            <field name="name">Neto alga</field>
+            <field name="code">NETOLV</field>
+        </record>
+
+        <record id="hr_payroll_category_IETLV" model="hr.salary.rule.category">
+            <field name="name">Ieturējumi</field>
+            <field name="code">IETLV</field>
+        </record>
+
+        <record id="hr_payroll_category_IZMLV" model="hr.salary.rule.category">
+            <field name="name">Izmaksa</field>
+            <field name="code">IZMLV</field>
+        </record>
+
+        <record id="hr_payroll_category_MAKSLV" model="hr.salary.rule.category">
+            <field name="name">Maksājumi</field>
+            <field name="code">MAKSLV</field>
+        </record>
+
+        <!-- Salary Rules -->
+
+        <record id="hr_payroll_rule_LD" model="hr.salary.rule">
+            <field name="name">Laika darbs (darba alga)</field>
+            <field name="sequence" eval="1"/>
+            <field name="code">LD</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_BRUTOnLV"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+amount = contract.wage
+if amount:
+    date_from = payslip.date_from
+    date_to = payslip.date_to
+    if date_from &lt;= date_to:
+        dfl = str(date_from).split('-')
+        year_from = int(dfl[0])
+        month_from = int(dfl[1])
+        day_from = int(dfl[2])
+        days_start = 0
+        if day_from &gt; 1:
+            while day_from &gt; 1:
+                day_from += 1
+                days_start += 1
+                if (month_from == 2 and ((year_from % 4 == 0 and day_from == 30) or (year_from % 4 != 0 and day_from == 29))) or (month_from in [4, 6, 9, 11] and day_from == 31) or (month_from in [1, 3, 5, 7, 8, 10, 12] and day_from == 32):
+                    day_from = 1
+                    month_from += 1
+                    if month_from == 13:
+                        month_from = 1
+                        year_from += 1
+        dtl = str(date_to).split('-')
+        years = 0
+        months = 0
+        days = 0
+        if year_from &lt; int(dtl[0]) or (year_from == int(dtl[0]) and (month_from &lt; int(dtl[1]) or (month_from == int(dtl[1]) and day_from &lt;= int(dtl[2])))):
+            while (year_from != int(dtl[0]) or month_from != int(dtl[1]) or day_from != int(dtl[2])):
+                day_from += 1
+                days += 1
+                if (month_from == 2 and ((year_from % 4 == 0 and day_from == 30) or (year_from % 4 != 0 and day_from == 29))) or (month_from in [4, 6, 9, 11] and day_from == 31) or (month_from in [1, 3, 5, 7, 8, 10, 12] and day_from == 32):
+                    day_from = 1
+                    month_from += 1
+                    if month_from == 13:
+                        month_from = 1
+                        year_from += 1
+                if day_from == int(dfl[2]):
+                    if month_from != int(dfl[1]):
+                        days = 0
+                        months += 1
+                    if month_from == int(dfl[1]) and year_from != int(dfl[0]):
+                        months = 0
+                        years += 1
+            days += 1
+        fm_days = (int(dfl[1]) == 2 and int(dfl[0]) % 4 == 0 and 29) or (int(dfl[1]) == 2 and int(dfl[0]) % 4 != 0 and 28) or (int(dfl[1]) in [4, 6, 9, 11] and 30) or 31
+        tm_days = (int(dtl[1]) == 2 and int(dtl[0]) % 4 == 0 and 29) or (int(dtl[1]) == 2 and int(dtl[0]) % 4 != 0 and 28) or (int(dtl[1]) in [4, 6, 9, 11] and 30) or 31
+        amount = (days_start != 0 and ((amount / fm_days) * days_start) or 0.0) + (years != 0 and amount * 12.0 * years or 0.0) + (months != 0 and amount * months or 0.0) + (days != 0 and ((amount / tm_days) * days) or 0.0)
+
+prec = payslip.env['decimal.precision'].precision_get('Payroll')
+
+total_hours = 0.0
+if payslip.worked_days_line_ids:
+    for line in payslip.worked_days_line_ids:
+        if line.code not in ['OFFICIAL']:
+            total_hours += line.number_of_hours
+salary = total_hours and payslip.env['hr.payslip'].round_float(((amount * worked_days.WORK100.number_of_hours) / total_hours), precision_digits=prec) or 0.0
+if total_hours == 0.0:
+    salary = amount
+result = salary</field>
+        </record>
+
+        <record id="hr_payroll_rule_PIEM" model="hr.salary.rule">
+            <field name="name">Piemaksas</field>
+            <field name="sequence" eval="2"/>
+            <field name="code">PIEM</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_BRUTOnLV"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days
+# inputs: object containing the computed inputs
+
+# Note: returned value have to be set in the variable 'result'
+
+show = False
+if inputs.PIEM and inputs.PIEM.amount &gt; 0.0:
+    show = True
+result = show</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+result = inputs.PIEM and inputs.PIEM.amount or 0.0</field>
+        </record>
+
+        <record id="hr_payroll_rule_PIEM_input" model="hr.rule.input">
+            <field name="input_id" ref="l10n_lv_hr_payroll.hr_payroll_rule_PIEM"/>
+            <field name="name">Piemaksas</field>
+            <field name="code">PIEM</field>
+        </record>
+
+        <record id="hr_payroll_rule_PIEMV" model="hr.salary.rule">
+            <field name="name">Piemaksa par virsstundām</field>
+            <field name="sequence" eval="5"/>
+            <field name="code">PIEMV</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_BRUTOnLV"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days
+# inputs: object containing the computed inputs
+
+# Note: returned value have to be set in the variable 'result'
+
+show = False
+if inputs.PIEMV and inputs.PIEMV.amount &gt; 0.0:
+    show = True
+result = show</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+result = inputs.PIEMV and inputs.PIEMV.amount or 0.0</field>
+        </record>
+
+        <record id="hr_payroll_rule_PIEMV_input" model="hr.rule.input">
+            <field name="input_id" ref="l10n_lv_hr_payroll.hr_payroll_rule_PIEMV"/>
+            <field name="name">Piemaksa par virsstundām</field>
+            <field name="code">PIEMV</field>
+        </record>
+
+        <record id="hr_payroll_rule_ATVAL" model="hr.salary.rule">
+            <field name="name">Atvaļinājums</field>
+            <field name="sequence" eval="7"/>
+            <field name="code">ATVAL</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_BRUTOnLV"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days
+# inputs: object containing the computed inputs
+
+# Note: returned value have to be set in the variable 'result'
+
+show = False
+if worked_days.LEGAL and worked_days.LEGAL.number_of_days &gt; 0.0:
+    show = True
+result = show</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+result = (inputs.VDA6M and inputs.VDA6M.amount or 0.0) * (worked_days.LEGAL and worked_days.LEGAL.number_of_days or 0.0)</field>
+        </record>
+
+        <record id="hr_payroll_rule_ATVALk" model="hr.salary.rule">
+            <field name="name">Atvaļinājuma kompensācija</field>
+            <field name="sequence" eval="8"/>
+            <field name="code">ATVALk</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_BRUTOnLV"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days
+# inputs: object containing the computed inputs
+
+# Note: returned value have to be set in the variable 'result'
+
+show = False
+if inputs.AKD and inputs.AKD.amount &gt; 0.0:
+    show = True
+result = show</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+result = (inputs.AKD and inputs.AKD.amount or 0.0) * (inputs.VDA6M and inputs.VDA6M.amount or 0.0)</field>
+        </record>
+
+        <record id="hr_payroll_rule_ATVALk_input_AKD" model="hr.rule.input">
+            <field name="input_id" ref="l10n_lv_hr_payroll.hr_payroll_rule_ATVALk"/>
+            <field name="name">Dienu skaits, par kurām pienākas atvaļinājuma kompensācija</field>
+            <field name="code">AKD</field>
+        </record>
+
+        <record id="hr_payroll_rule_SLA" model="hr.salary.rule">
+            <field name="name">Slimības lapa "A"</field>
+            <field name="sequence" eval="10"/>
+            <field name="code">SLA</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_BRUTOnLV"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days
+# inputs: object containing the computed inputs
+
+# Note: returned value have to be set in the variable 'result'
+
+show = False
+if worked_days.SICK75 and worked_days.SICK75.number_of_days &gt; 0.0 or worked_days.SICK80 and worked_days.SICK80.number_of_days &gt; 0.0:
+    show = True
+result = show</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+if inputs.VDA6M and inputs.VDA6M.amount != 0.0:
+    day_salary = inputs.VDA6M.amount
+else:
+    day_salary = (worked_days.WORK100 and worked_days.WORK100.number_of_days != 0.0) and ((LD + (inputs.PIEM and inputs.PIEM.amount or 0.0) + (inputs.PIEMV and inputs.PIEMV.amount or 0.0)) / worked_days.WORK100.number_of_days) or 0.0
+
+payment  = 0.0
+if worked_days.SICK75:
+    payment += (day_salary * 0.75 * worked_days.SICK75.number_of_days)
+if worked_days.SICK80:
+    payment += (day_salary * 0.80 * worked_days.SICK80.number_of_days)
+
+result = payment</field>
+        </record>
+
+        <record id="hr_payroll_rule_SLB" model="hr.salary.rule">
+            <field name="name">Slimības lapa "B"</field>
+            <field name="sequence" eval="11"/>
+            <field name="code">SLB</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_BRUTOnLV"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days
+# inputs: object containing the computed inputs
+
+# Note: returned value have to be set in the variable 'result'
+
+show = False
+if inputs.SLB and inputs.SLB.amount &gt; 0.0:
+    show = True
+result = show</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+result = inputs.SLB and inputs.SLB.amount or 0.0</field>
+        </record>
+
+        <record id="hr_payroll_rule_SLB_input" model="hr.rule.input">
+            <field name="input_id" ref="l10n_lv_hr_payroll.hr_payroll_rule_SLB"/>
+            <field name="name">Summa par slimības lapu "B"</field>
+            <field name="code">SLB</field>
+        </record>
+
+        <record id="hr_payroll_rule_IPPFB" model="hr.salary.rule">
+            <field name="name">Iemaksa privātajā pensiju fondā (bruto)</field>
+            <field name="sequence" eval="12"/>
+            <field name="code">IPPFB</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_BRUTObLV"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days
+# inputs: object containing the computed inputs
+
+# Note: returned value have to be set in the variable 'result'
+
+show = False
+if inputs.IPPF and inputs.IPPF.amount &gt; 0.0:
+    show = True
+result = show</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+result = inputs.IPPF and inputs.IPPF.amount or 0.0</field>
+        </record>
+
+        <record id="hr_payroll_rule_RN" model="hr.salary.rule">
+            <field name="name">Uzņēmējdarbības riska nodeva</field>
+            <field name="sequence" eval="13"/>
+            <field name="code">RN</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_NDVLV"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+amount = 0.36
+
+date_from = payslip.date_from
+date_to = payslip.date_to
+if date_from &lt;= date_to:
+    dfl = str(date_from).split('-')
+    year_from = int(dfl[0])
+    month_from = int(dfl[1])
+    day_from = int(dfl[2])
+    days_start = 0
+    if day_from &gt; 1:
+        while day_from &gt; 1:
+            day_from += 1
+            days_start += 1
+            if (month_from == 2 and ((year_from % 4 == 0 and day_from == 30) or (year_from % 4 != 0 and day_from == 29))) or (month_from in [4, 6, 9, 11] and day_from == 31) or (month_from in [1, 3, 5, 7, 8, 10, 12] and day_from == 32):
+                day_from = 1
+                month_from += 1
+                if month_from == 13:
+                    month_from = 1
+                    year_from += 1
+    dtl = str(date_to).split('-')
+    years = 0
+    months = 0
+    days = 0
+    if year_from &lt; int(dtl[0]) or (year_from == int(dtl[0]) and (month_from &lt; int(dtl[1]) or (month_from == int(dtl[1]) and day_from &lt;= int(dtl[2])))):
+        while (year_from != int(dtl[0]) or month_from != int(dtl[1]) or day_from != int(dtl[2])):
+            day_from += 1
+            days += 1
+            if (month_from == 2 and ((year_from % 4 == 0 and day_from == 30) or (year_from % 4 != 0 and day_from == 29))) or (month_from in [4, 6, 9, 11] and day_from == 31) or (month_from in [1, 3, 5, 7, 8, 10, 12] and day_from == 32):
+                day_from = 1
+                month_from += 1
+                if month_from == 13:
+                    month_from = 1
+                    year_from += 1
+            if day_from == int(dfl[2]):
+                if month_from != int(dfl[1]):
+                    days = 0
+                    months += 1
+                if month_from == int(dfl[1]) and year_from != int(dfl[0]):
+                    months = 0
+                    years += 1
+        days += 1
+    fm_days = (int(dfl[1]) == 2 and int(dfl[0]) % 4 == 0 and 29) or (int(dfl[1]) == 2 and int(dfl[0]) % 4 != 0 and 28) or (int(dfl[1]) in [4, 6, 9, 11] and 30) or 31
+    tm_days = (int(dtl[1]) == 2 and int(dtl[0]) % 4 == 0 and 29) or (int(dtl[1]) == 2 and int(dtl[0]) % 4 != 0 and 28) or (int(dtl[1]) in [4, 6, 9, 11] and 30) or 31
+    amount = (days_start != 0 and ((amount / fm_days) * days_start) or 0.0) + (years != 0 and amount * 12.0 * years or 0.0) + (months != 0 and amount * months or 0.0) + (days != 0 and ((amount / tm_days) * days) or 0.0)
+
+prec = payslip.env['decimal.precision'].precision_get('Payroll')
+
+amount = payslip.env['hr.payslip'].round_float(amount, precision_digits=prec)
+result = amount</field>
+        </record>
+
+        <record id="hr_payroll_rule_VSAOIdd" model="hr.salary.rule">
+            <field name="name">Valsts sociālās apdrošināšanas obligātā iemaksa darba devējam</field>
+            <field name="sequence" eval="14"/>
+            <field name="code">VSAOIdd</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_VSAOILV"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">percentage</field>
+            <field name="amount_percentage_base">categories.BRUTOnLV</field>
+            <field name="quantity">1.0</field>
+            <field name="amount_percentage" eval="24.09"/>
+        </record>
+
+        <record id="hr_payroll_rule_DDKI" model="hr.salary.rule">
+            <field name="name">Darba devēja kopējās izmaksas</field>
+            <field name="sequence" eval="15"/>
+            <field name="code">DDKI</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_AFLV"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+result = categories.BRUTOnLV + VSAOIdd + categories.NDVLV</field>
+        </record>
+
+        <record id="hr_payroll_rule_VSAOIdn" model="hr.salary.rule">
+            <field name="name">Valsts sociālās apdrošināšanas obligātā iemaksa darba ņēmējam</field>
+            <field name="sequence" eval="16"/>
+            <field name="code">VSAOIdn</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_VSAOILV"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">percentage</field>
+            <field name="amount_percentage_base">categories.BRUTOnLV</field>
+            <field name="quantity">1.0</field>
+            <field name="amount_percentage" eval="11.0"/>
+        </record>
+
+        <record id="hr_payroll_rule_NM" model="hr.salary.rule">
+            <field name="name">Neapliekamais minimums</field>
+            <field name="sequence" eval="17"/>
+            <field name="code">NM</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_ATVLV"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+prec = payslip.env['decimal.precision'].precision_get('Payroll')
+
+nm = 0.0
+date_from = payslip.date_from
+date_to = payslip.date_to
+if date_from &lt;= date_to:
+    dfl = str(date_from).split('-')
+    year_from = int(dfl[0])
+    month_from = int(dfl[1])
+    day_from = int(dfl[2])
+    dtl = str(date_to).split('-')
+
+    months_dict = {}
+    if dfl != dtl:
+        while (year_from != int(dtl[0]) or month_from != int(dtl[1]) or day_from != int(dtl[2])):
+            if (year_from, month_from) in months_dict:
+                months_dict[(year_from, month_from)] = months_dict[(year_from, month_from)] + 1
+            if (year_from, month_from) not in months_dict:
+                months_dict.update({(year_from, month_from): 1})
+            day_from += 1
+            if (month_from == 2 and ((year_from % 4 == 0 and day_from == 30) or (year_from % 4 != 0 and day_from == 29))) or (month_from in [4, 6, 9, 11] and day_from == 31) or (month_from in [1, 3, 5, 7, 8, 10, 12] and day_from == 32):
+                day_from = 1
+                month_from += 1
+                if month_from == 13:
+                    month_from = 1
+                    year_from += 1
+    if (year_from, month_from) in months_dict:
+        months_dict[(year_from, month_from)] = months_dict[(year_from, month_from)] + 1
+    if (year_from, month_from) not in months_dict:
+        months_dict.update({(year_from, month_from): 1})
+
+    months_dict2 = {}
+    if months_dict:
+        for ym in months_dict.keys():
+            if ym[1] == 2:
+                if ym[0] % 4 == 0:
+                    months_dict2.update({ym: 29})
+                if ym[0] % 4 != 0:
+                    months_dict2.update({ym: 28})
+            if ym[1] in [4, 6, 9, 11]:
+                months_dict2.update({ym: 30})
+            if ym[1] in [1, 3, 5, 7, 8, 10, 12]:
+                months_dict2.update({ym: 31})
+
+    for ym, days in months_dict2.items():
+        if employee.relief_ids:
+            for rl in employee.relief_ids:
+                if rl.type == 'untaxed_month':
+                    rl_dfl = rl.date_from and str(rl.date_from).split('-') or []
+                    rl_dtl = rl.date_to and str(rl.date_to).split('-') or []
+                    # check if relief is active in month:
+                    if ((not rl_dfl) or (int(rl_dfl[0]) &lt; ym[0]) or (int(rl_dfl[0]) == ym[0] and int(rl_dfl[1]) &lt; ym[1]) or (int(rl_dfl[0]) == ym[0] and int(rl_dfl[1]) == ym[1] and int(rl_dfl[2]) &lt;= days)) and ((not rl_dtl) or (int(rl_dtl[0]) &gt; ym[0]) or (int(rl_dtl[0]) == ym[0] and int(rl_dtl[1]) &gt; ym[1]) or (int(rl_dtl[0]) == ym[0] and int(rl_dtl[1]) == ym[1] and int(rl_dtl[2]) &gt;= 1)):
+                        # form relief period in month:
+                        rdfl = [ym[0], ym[1], 1]
+                        rdtl = [ym[0], ym[1], days]
+                        if rl_dfl and int(rl_dfl[0]) == rdfl[0] and int(rl_dfl[1]) == rdfl[1] and int(rl_dfl[2]) &gt; rdfl[2]:
+                            rdfl[2] = int(rl_dfl[2])
+                        if rl_dtl and int(rl_dtl[0]) == rdtl[0] and int(rl_dtl[1]) == rdtl[1] and int(rl_dtl[2]) &lt; rdtl[2]:
+                            rdtl[2] = int(rl_dtl[2])
+                        if dfl and int(dfl[0]) == rdfl[0] and int(dfl[1]) == rdfl[1] and int(dfl[2]) &gt; rdfl[2]:
+                            rdfl[2] = int(dfl[2])
+                        if dtl and int(dtl[0]) == rdtl[0] and int(dtl[1]) == rdtl[1] and int(dtl[2]) &lt; rdtl[2]:
+                            rdtl[2] = int(dtl[2])
+                        # get number of removed days from holidays:
+                        rem_days = 0
+                        if employee.holiday_ids:
+                            for eh in employee.holiday_ids:
+                                if eh.holiday_status_id.reduces_tax_relief == True and eh.state in ['confirm', 'validate', 'validate1']:
+                                    eh_date_from = str(eh.date_from).split(' ')[0]
+                                    eh_date_to = str(eh.date_to).split(' ')[0]
+                                    eh_dfl = eh_date_from.split('-')
+                                    eh_dtl = eh_date_to.split('-')
+                                    # check if leave is active in relief period:
+                                    if (int(eh_dfl[0]) &lt; rdtl[0] or (int(eh_dfl[0]) == rdtl[0] and int(eh_dfl[1]) &lt; rdtl[1]) or (int(eh_dfl[0]) == rdtl[0] and int(eh_dfl[1]) == rdtl[1] and int(eh_dfl[2]) &lt;= rdtl[2])) and (int(eh_dtl[0]) &gt; rdfl[0] or (int(eh_dtl[0]) == rdfl[0] and int(eh_dtl[1]) &gt; rdfl[1]) or (int(eh_dtl[0]) == rdfl[0] and int(eh_dtl[1]) == rdfl[1] and int(eh_dtl[2]) &gt;= rdfl[2])):
+                                        # from leave period in relief period:
+                                        edfl = rdfl[:]
+                                        edtl = rdtl[:]
+                                        if int(eh_dfl[0]) == edfl[0] and int(eh_dfl[1]) == edfl[1] and int(eh_dfl[2]) &gt; edfl[2]:
+                                            edfl[2] = int(eh_dfl[2])
+                                        if int(eh_dtl[0]) == edtl[0] and int(eh_dtl[1]) == edtl[1] and int(eh_dtl[2]) &lt; edtl[2]:
+                                            edtl[2] = int(eh_dtl[2])
+                                        eyf = edfl[0]
+                                        emf = edfl[1]
+                                        edf = edfl[2]
+                                        # count leave days in relief period:
+                                        if edfl != edtl:
+                                            while eyf != edtl[0] or emf != edtl[1] or edf != edtl[2]:
+                                                rem_days += 1
+                                                edf += 1
+                                                if (emf == 2 and ((eyf % 4 == 0 and edf == 30) or (eyf % 4 != 0 and edf == 29))) or (emf in [4, 6, 9, 11] and edf == 31) or (emf in [1, 3, 5, 7, 8, 10, 12] and edf == 32):
+                                                    edf = 1
+                                                    emf += 1
+                                                    if emf == 13:
+                                                        emf = 1
+                                                        eyf += 1
+                                        rem_days += 1
+                        # count relief period days:
+                        add_days = 0
+                        ryf = rdfl[0]
+                        rmf = rdfl[1]
+                        rdf = rdfl[2]
+                        if rdfl != rdtl:
+                            while ryf != rdtl[0] or rmf != rdtl[1] or rdf != rdtl[2]:
+                                add_days += 1
+                                rdf += 1
+                                if (rmf == 2 and ((ryf % 4 == 0 and rdf == 30) or (ryf % 4 != 0 and rdf == 29))) or (rmf in [4, 6, 9, 11] and rdf == 31) or (rmf in [1, 3, 5, 7, 8, 10, 12] and rdf == 32):
+                                    rdf = 1
+                                    rmf += 1
+                                    if rmf == 13:
+                                        rmf = 1
+                                        ryf += 1
+                        add_days += 1
+                        # sum days:
+                        rl_days = add_days - rem_days
+                        if rl_days &lt; 0:
+                            rl_days = 0
+                        # compute amount:
+                        nm += payslip.env['hr.payslip'].round_float(((rl.amount / float(days)) * float(rl_days)), precision_digits=prec)
+
+result = nm</field>
+        </record>
+
+        <record id="hr_payroll_rule_APG" model="hr.salary.rule">
+            <field name="name">Atvieglojums par apgādībā esošām personām</field>
+            <field name="sequence" eval="18"/>
+            <field name="code">APG</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_ATVLV"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days
+# inputs: object containing the computed inputs
+
+# Note: returned value have to be set in the variable 'result'
+
+show = False
+
+date_from = payslip.date_from
+date_to = payslip.date_to
+if date_from &lt;= date_to:
+    dfl = str(date_from).split('-')
+    year_from = int(dfl[0])
+    month_from = int(dfl[1])
+    day_from = int(dfl[2])
+    dtl = str(date_to).split('-')
+
+    months_dict = {}
+    if dfl != dtl:
+        while (year_from != int(dtl[0]) or month_from != int(dtl[1]) or day_from != int(dtl[2])):
+            if (year_from, month_from) in months_dict:
+                months_dict[(year_from, month_from)] = months_dict[(year_from, month_from)] + 1
+            if (year_from, month_from) not in months_dict:
+                months_dict.update({(year_from, month_from): 1})
+            day_from += 1
+            if (month_from == 2 and ((year_from % 4 == 0 and day_from == 30) or (year_from % 4 != 0 and day_from == 29))) or (month_from in [4, 6, 9, 11] and day_from == 31) or (month_from in [1, 3, 5, 7, 8, 10, 12] and day_from == 32):
+                day_from = 1
+                month_from += 1
+                if month_from == 13:
+                    month_from = 1
+                    year_from += 1
+    if (year_from, month_from) in months_dict:
+        months_dict[(year_from, month_from)] = months_dict[(year_from, month_from)] + 1
+    if (year_from, month_from) not in months_dict:
+        months_dict.update({(year_from, month_from): 1})
+
+    months_dict2 = {}
+    if months_dict:
+        for ym in months_dict.keys():
+            if ym[1] == 2:
+                if ym[0] % 4 == 0:
+                    months_dict2.update({ym: 29})
+                if ym[0] % 4 != 0:
+                    months_dict2.update({ym: 28})
+            if ym[1] in [4, 6, 9, 11]:
+                months_dict2.update({ym: 30})
+            if ym[1] in [1, 3, 5, 7, 8, 10, 12]:
+                months_dict2.update({ym: 31})
+
+    for ym, days in months_dict2.items():
+        if employee.relief_ids:
+            for rl in employee.relief_ids:
+                if rl.type == 'dependent':
+                    rl_dfl = rl.date_from and str(rl.date_from).split('-') or []
+                    rl_dtl = rl.date_to and str(rl.date_to).split('-') or []
+                    # check if relief is active in month:
+                    if ((not rl_dfl) or (int(rl_dfl[0]) &lt; ym[0]) or (int(rl_dfl[0]) == ym[0] and int(rl_dfl[1]) &lt; ym[1]) or (int(rl_dfl[0]) == ym[0] and int(rl_dfl[1]) == ym[1] and int(rl_dfl[2]) &lt;= days)) and ((not rl_dtl) or (int(rl_dtl[0]) &gt; ym[0]) or (int(rl_dtl[0]) == ym[0] and int(rl_dtl[1]) &gt; ym[1]) or (int(rl_dtl[0]) == ym[0] and int(rl_dtl[1]) == ym[1] and int(rl_dtl[2]) &gt;= 1)):
+                        show = True
+
+result = show</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+prec = payslip.env['decimal.precision'].precision_get('Payroll')
+
+aatv = 0.0
+date_from = payslip.date_from
+date_to = payslip.date_to
+if date_from &lt;= date_to:
+    dfl = str(date_from).split('-')
+    year_from = int(dfl[0])
+    month_from = int(dfl[1])
+    day_from = int(dfl[2])
+    dtl = str(date_to).split('-')
+
+    months_dict = {}
+    if dfl != dtl:
+        while (year_from != int(dtl[0]) or month_from != int(dtl[1]) or day_from != int(dtl[2])):
+            if (year_from, month_from) in months_dict:
+                months_dict[(year_from, month_from)] = months_dict[(year_from, month_from)] + 1
+            if (year_from, month_from) not in months_dict:
+                months_dict.update({(year_from, month_from): 1})
+            day_from += 1
+            if (month_from == 2 and ((year_from % 4 == 0 and day_from == 30) or (year_from % 4 != 0 and day_from == 29))) or (month_from in [4, 6, 9, 11] and day_from == 31) or (month_from in [1, 3, 5, 7, 8, 10, 12] and day_from == 32):
+                day_from = 1
+                month_from += 1
+                if month_from == 13:
+                    month_from = 1
+                    year_from += 1
+    if (year_from, month_from) in months_dict:
+        months_dict[(year_from, month_from)] = months_dict[(year_from, month_from)] + 1
+    if (year_from, month_from) not in months_dict:
+        months_dict.update({(year_from, month_from): 1})
+
+    months_dict2 = {}
+    if months_dict:
+        for ym in months_dict.keys():
+            if ym[1] == 2:
+                if ym[0] % 4 == 0:
+                    months_dict2.update({ym: 29})
+                if ym[0] % 4 != 0:
+                    months_dict2.update({ym: 28})
+            if ym[1] in [4, 6, 9, 11]:
+                months_dict2.update({ym: 30})
+            if ym[1] in [1, 3, 5, 7, 8, 10, 12]:
+                months_dict2.update({ym: 31})
+
+    for ym, days in months_dict2.items():
+        if employee.relief_ids:
+            for rl in employee.relief_ids:
+                if rl.type == 'dependent':
+                    rl_dfl = rl.date_from and str(rl.date_from).split('-') or []
+                    rl_dtl = rl.date_to and str(rl.date_to).split('-') or []
+                    # check if relief is active in month:
+                    if ((not rl_dfl) or (int(rl_dfl[0]) &lt; ym[0]) or (int(rl_dfl[0]) == ym[0] and int(rl_dfl[1]) &lt; ym[1]) or (int(rl_dfl[0]) == ym[0] and int(rl_dfl[1]) == ym[1] and int(rl_dfl[2]) &lt;= days)) and ((not rl_dtl) or (int(rl_dtl[0]) &gt; ym[0]) or (int(rl_dtl[0]) == ym[0] and int(rl_dtl[1]) &gt; ym[1]) or (int(rl_dtl[0]) == ym[0] and int(rl_dtl[1]) == ym[1] and int(rl_dtl[2]) &gt;= 1)):
+                        # form relief period in month:
+                        rdfl = [ym[0], ym[1], 1]
+                        rdtl = [ym[0], ym[1], days]
+                        if rl_dfl and int(rl_dfl[0]) == rdfl[0] and int(rl_dfl[1]) == rdfl[1] and int(rl_dfl[2]) &gt; rdfl[2]:
+                            rdfl[2] = int(rl_dfl[2])
+                        if rl_dtl and int(rl_dtl[0]) == rdtl[0] and int(rl_dtl[1]) == rdtl[1] and int(rl_dtl[2]) &lt; rdtl[2]:
+                            rdtl[2] = int(rl_dtl[2])
+                        if dfl and int(dfl[0]) == rdfl[0] and int(dfl[1]) == rdfl[1] and int(dfl[2]) &gt; rdfl[2]:
+                            rdfl[2] = int(dfl[2])
+                        if dtl and int(dtl[0]) == rdtl[0] and int(dtl[1]) == rdtl[1] and int(dtl[2]) &lt; rdtl[2]:
+                            rdtl[2] = int(dtl[2])
+                        # get number of removed days from holidays:
+                        rem_days = 0
+                        if employee.holiday_ids:
+                            for eh in employee.holiday_ids:
+                                if eh.holiday_status_id.reduces_tax_relief == True and eh.state in ['confirm', 'validate', 'validate1']:
+                                    eh_date_from = str(eh.date_from).split(' ')[0]
+                                    eh_date_to = str(eh.date_to).split(' ')[0]
+                                    eh_dfl = eh_date_from.split('-')
+                                    eh_dtl = eh_date_to.split('-')
+                                    # check if leave is active in relief period:
+                                    if (int(eh_dfl[0]) &lt; rdtl[0] or (int(eh_dfl[0]) == rdtl[0] and int(eh_dfl[1]) &lt; rdtl[1]) or (int(eh_dfl[0]) == rdtl[0] and int(eh_dfl[1]) == rdtl[1] and int(eh_dfl[2]) &lt;= rdtl[2])) and (int(eh_dtl[0]) &gt; rdfl[0] or (int(eh_dtl[0]) == rdfl[0] and int(eh_dtl[1]) &gt; rdfl[1]) or (int(eh_dtl[0]) == rdfl[0] and int(eh_dtl[1]) == rdfl[1] and int(eh_dtl[2]) &gt;= rdfl[2])):
+                                        # from leave period in relief period:
+                                        edfl = rdfl[:]
+                                        edtl = rdtl[:]
+                                        if int(eh_dfl[0]) == edfl[0] and int(eh_dfl[1]) == edfl[1] and int(eh_dfl[2]) &gt; edfl[2]:
+                                            edfl[2] = int(eh_dfl[2])
+                                        if int(eh_dtl[0]) == edtl[0] and int(eh_dtl[1]) == edtl[1] and int(eh_dtl[2]) &lt; edtl[2]:
+                                            edtl[2] = int(eh_dtl[2])
+                                        eyf = edfl[0]
+                                        emf = edfl[1]
+                                        edf = edfl[2]
+                                        # count leave days in relief period:
+                                        if edfl != edtl:
+                                            while eyf != edtl[0] or emf != edtl[1] or edf != edtl[2]:
+                                                rem_days += 1
+                                                edf += 1
+                                                if (emf == 2 and ((eyf % 4 == 0 and edf == 30) or (eyf % 4 != 0 and edf == 29))) or (emf in [4, 6, 9, 11] and edf == 31) or (emf in [1, 3, 5, 7, 8, 10, 12] and edf == 32):
+                                                    edf = 1
+                                                    emf += 1
+                                                    if emf == 13:
+                                                        emf = 1
+                                                        eyf += 1
+                                        rem_days += 1
+                        # count relief period days:
+                        add_days = 0
+                        ryf = rdfl[0]
+                        rmf = rdfl[1]
+                        rdf = rdfl[2]
+                        if rdfl != rdtl:
+                            while ryf != rdtl[0] or rmf != rdtl[1] or rdf != rdtl[2]:
+                                add_days += 1
+                                rdf += 1
+                                if (rmf == 2 and ((ryf % 4 == 0 and rdf == 30) or (ryf % 4 != 0 and rdf == 29))) or (rmf in [4, 6, 9, 11] and rdf == 31) or (rmf in [1, 3, 5, 7, 8, 10, 12] and rdf == 32):
+                                    rdf = 1
+                                    rmf += 1
+                                    if rmf == 13:
+                                        rmf = 1
+                                        ryf += 1
+                        add_days += 1
+                        # sum days:
+                        rl_days = add_days - rem_days
+                        if rl_days &lt; 0:
+                            rl_days = 0
+                        # compute amount:
+                        rl_amount = rl.amount != 0.0 and rl.amount or 250.0
+                        aatv += payslip.env['hr.payslip'].round_float(((rl_amount / float(days)) * float(rl_days)), precision_digits=prec)
+
+result = aatv</field>
+        </record>
+
+        <record id="hr_payroll_rule_INV" model="hr.salary.rule">
+            <field name="name">Atvieglojumi par invaliditāti</field>
+            <field name="sequence" eval="19"/>
+            <field name="code">INV</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_ATVLV"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days
+# inputs: object containing the computed inputs
+
+# Note: returned value have to be set in the variable 'result'
+
+show = False
+date_from = payslip.date_from
+date_to = payslip.date_to
+if date_from &lt;= date_to:
+    dfl = str(date_from).split('-')
+    year_from = int(dfl[0])
+    month_from = int(dfl[1])
+    day_from = int(dfl[2])
+    dtl = str(date_to).split('-')
+
+    months_dict = {}
+    if dfl != dtl:
+        while (year_from != int(dtl[0]) or month_from != int(dtl[1]) or day_from != int(dtl[2])):
+            if (year_from, month_from) in months_dict:
+                months_dict[(year_from, month_from)] = months_dict[(year_from, month_from)] + 1
+            if (year_from, month_from) not in months_dict:
+                months_dict.update({(year_from, month_from): 1})
+            day_from += 1
+            if (month_from == 2 and ((year_from % 4 == 0 and day_from == 30) or (year_from % 4 != 0 and day_from == 29))) or (month_from in [4, 6, 9, 11] and day_from == 31) or (month_from in [1, 3, 5, 7, 8, 10, 12] and day_from == 32):
+                day_from = 1
+                month_from += 1
+                if month_from == 13:
+                    month_from = 1
+                    year_from += 1
+    if (year_from, month_from) in months_dict:
+        months_dict[(year_from, month_from)] = months_dict[(year_from, month_from)] + 1
+    if (year_from, month_from) not in months_dict:
+        months_dict.update({(year_from, month_from): 1})
+
+    months_dict2 = {}
+    if months_dict:
+        for ym in months_dict.keys():
+            if ym[1] == 2:
+                if ym[0] % 4 == 0:
+                    months_dict2.update({ym: 29})
+                if ym[0] % 4 != 0:
+                    months_dict2.update({ym: 28})
+            if ym[1] in [4, 6, 9, 11]:
+                months_dict2.update({ym: 30})
+            if ym[1] in [1, 3, 5, 7, 8, 10, 12]:
+                months_dict2.update({ym: 31})
+
+    for ym, days in months_dict2.items():
+        if employee.relief_ids:
+            for rl in employee.relief_ids:
+                if rl.type in ['disability1', 'disability2', 'disability3']:
+                    rl_dfl = rl.date_from and str(rl.date_from).split('-') or []
+                    rl_dtl = rl.date_to and str(rl.date_to).split('-') or []
+                    # check if relief is active in month:
+                    if ((not rl_dfl) or (int(rl_dfl[0]) &lt; ym[0]) or (int(rl_dfl[0]) == ym[0] and int(rl_dfl[1]) &lt; ym[1]) or (int(rl_dfl[0]) == ym[0] and int(rl_dfl[1]) == ym[1] and int(rl_dfl[2]) &lt;= days)) and ((not rl_dtl) or (int(rl_dtl[0]) &gt; ym[0]) or (int(rl_dtl[0]) == ym[0] and int(rl_dtl[1]) &gt; ym[1]) or (int(rl_dtl[0]) == ym[0] and int(rl_dtl[1]) == ym[1] and int(rl_dtl[2]) &gt;= 1)):
+                        show = True
+
+result = show</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+prec = payslip.env['decimal.precision'].precision_get('Payroll')
+
+iatv = 0.0
+date_from = payslip.date_from
+date_to = payslip.date_to
+if date_from &lt;= date_to:
+    dfl = str(date_from).split('-')
+    year_from = int(dfl[0])
+    month_from = int(dfl[1])
+    day_from = int(dfl[2])
+    dtl = str(date_to).split('-')
+
+    months_dict = {}
+    if dfl != dtl:
+        while (year_from != int(dtl[0]) or month_from != int(dtl[1]) or day_from != int(dtl[2])):
+            if (year_from, month_from) in months_dict:
+                months_dict[(year_from, month_from)] = months_dict[(year_from, month_from)] + 1
+            if (year_from, month_from) not in months_dict:
+                months_dict.update({(year_from, month_from): 1})
+            day_from += 1
+            if (month_from == 2 and ((year_from % 4 == 0 and day_from == 30) or (year_from % 4 != 0 and day_from == 29))) or (month_from in [4, 6, 9, 11] and day_from == 31) or (month_from in [1, 3, 5, 7, 8, 10, 12] and day_from == 32):
+                day_from = 1
+                month_from += 1
+                if month_from == 13:
+                    month_from = 1
+                    year_from += 1
+    if (year_from, month_from) in months_dict:
+        months_dict[(year_from, month_from)] = months_dict[(year_from, month_from)] + 1
+    if (year_from, month_from) not in months_dict:
+        months_dict.update({(year_from, month_from): 1})
+
+    months_dict2 = {}
+    if months_dict:
+        for ym in months_dict.keys():
+            if ym[1] == 2:
+                if ym[0] % 4 == 0:
+                    months_dict2.update({ym: 29})
+                if ym[0] % 4 != 0:
+                    months_dict2.update({ym: 28})
+            if ym[1] in [4, 6, 9, 11]:
+                months_dict2.update({ym: 30})
+            if ym[1] in [1, 3, 5, 7, 8, 10, 12]:
+                months_dict2.update({ym: 31})
+
+    for ym, days in months_dict2.items():
+        if employee.relief_ids:
+            for rl in employee.relief_ids:
+                if rl.type in ['disability1', 'disability2', 'disability3']:
+                    rl_dfl = rl.date_from and str(rl.date_from).split('-') or []
+                    rl_dtl = rl.date_to and str(rl.date_to).split('-') or []
+                    # check if relief is active in month:
+                    if ((not rl_dfl) or (int(rl_dfl[0]) &lt; ym[0]) or (int(rl_dfl[0]) == ym[0] and int(rl_dfl[1]) &lt; ym[1]) or (int(rl_dfl[0]) == ym[0] and int(rl_dfl[1]) == ym[1] and int(rl_dfl[2]) &lt;= days)) and ((not rl_dtl) or (int(rl_dtl[0]) &gt; ym[0]) or (int(rl_dtl[0]) == ym[0] and int(rl_dtl[1]) &gt; ym[1]) or (int(rl_dtl[0]) == ym[0] and int(rl_dtl[1]) == ym[1] and int(rl_dtl[2]) &gt;= 1)):
+                        # form relief period in month:
+                        rdfl = [ym[0], ym[1], 1]
+                        rdtl = [ym[0], ym[1], days]
+                        if rl_dfl and int(rl_dfl[0]) == rdfl[0] and int(rl_dfl[1]) == rdfl[1] and int(rl_dfl[2]) &gt; rdfl[2]:
+                            rdfl[2] = int(rl_dfl[2])
+                        if rl_dtl and int(rl_dtl[0]) == rdtl[0] and int(rl_dtl[1]) == rdtl[1] and int(rl_dtl[2]) &lt; rdtl[2]:
+                            rdtl[2] = int(rl_dtl[2])
+                        if dfl and int(dfl[0]) == rdfl[0] and int(dfl[1]) == rdfl[1] and int(dfl[2]) &gt; rdfl[2]:
+                            rdfl[2] = int(dfl[2])
+                        if dtl and int(dtl[0]) == rdtl[0] and int(dtl[1]) == rdtl[1] and int(dtl[2]) &lt; rdtl[2]:
+                            rdtl[2] = int(dtl[2])
+                        # get number of removed days from holidays:
+                        rem_days = 0
+                        if employee.holiday_ids:
+                            for eh in employee.holiday_ids:
+                                if eh.holiday_status_id.reduces_tax_relief == True and eh.state in ['confirm', 'validate', 'validate1']:
+                                    eh_date_from = str(eh.date_from).split(' ')[0]
+                                    eh_date_to = str(eh.date_to).split(' ')[0]
+                                    eh_dfl = eh_date_from.split('-')
+                                    eh_dtl = eh_date_to.split('-')
+                                    # check if leave is active in relief period:
+                                    if (int(eh_dfl[0]) &lt; rdtl[0] or (int(eh_dfl[0]) == rdtl[0] and int(eh_dfl[1]) &lt; rdtl[1]) or (int(eh_dfl[0]) == rdtl[0] and int(eh_dfl[1]) == rdtl[1] and int(eh_dfl[2]) &lt;= rdtl[2])) and (int(eh_dtl[0]) &gt; rdfl[0] or (int(eh_dtl[0]) == rdfl[0] and int(eh_dtl[1]) &gt; rdfl[1]) or (int(eh_dtl[0]) == rdfl[0] and int(eh_dtl[1]) == rdfl[1] and int(eh_dtl[2]) &gt;= rdfl[2])):
+                                        # from leave period in relief period:
+                                        edfl = rdfl[:]
+                                        edtl = rdtl[:]
+                                        if int(eh_dfl[0]) == edfl[0] and int(eh_dfl[1]) == edfl[1] and int(eh_dfl[2]) &gt; edfl[2]:
+                                            edfl[2] = int(eh_dfl[2])
+                                        if int(eh_dtl[0]) == edtl[0] and int(eh_dtl[1]) == edtl[1] and int(eh_dtl[2]) &lt; edtl[2]:
+                                            edtl[2] = int(eh_dtl[2])
+                                        eyf = edfl[0]
+                                        emf = edfl[1]
+                                        edf = edfl[2]
+                                        # count leave days in relief period:
+                                        if edfl != edtl:
+                                            while eyf != edtl[0] or emf != edtl[1] or edf != edtl[2]:
+                                                rem_days += 1
+                                                edf += 1
+                                                if (emf == 2 and ((eyf % 4 == 0 and edf == 30) or (eyf % 4 != 0 and edf == 29))) or (emf in [4, 6, 9, 11] and edf == 31) or (emf in [1, 3, 5, 7, 8, 10, 12] and edf == 32):
+                                                    edf = 1
+                                                    emf += 1
+                                                    if emf == 13:
+                                                        emf = 1
+                                                        eyf += 1
+                                        rem_days += 1
+                        # count relief period days:
+                        add_days = 0
+                        ryf = rdfl[0]
+                        rmf = rdfl[1]
+                        rdf = rdfl[2]
+                        if rdfl != rdtl:
+                            while ryf != rdtl[0] or rmf != rdtl[1] or rdf != rdtl[2]:
+                                add_days += 1
+                                rdf += 1
+                                if (rmf == 2 and ((ryf % 4 == 0 and rdf == 30) or (ryf % 4 != 0 and rdf == 29))) or (rmf in [4, 6, 9, 11] and rdf == 31) or (rmf in [1, 3, 5, 7, 8, 10, 12] and rdf == 32):
+                                    rdf = 1
+                                    rmf += 1
+                                    if rmf == 13:
+                                        rmf = 1
+                                        ryf += 1
+                        add_days += 1
+                        # sum days:
+                        rl_days = add_days - rem_days
+                        if rl_days &lt; 0:
+                            rl_days = 0
+                        # compute amount:
+                        rl_amount = rl.amount
+                        if rl_amount == 0.0:
+                            if rl.type in ['disability1', 'disability2']:
+                                rl_amount = 154.0
+                            if rl.type == 'disability3':
+                                rl_amount = 120.0
+                        iatv += payslip.env['hr.payslip'].round_float(((rl_amount / float(days)) * float(rl_days)), precision_digits=prec)
+
+result = iatv</field>
+        </record>
+
+        <record id="hr_payroll_rule_IIN" model="hr.salary.rule">
+            <field name="name">Iedzīvotāju ienākumu nodoklis</field>
+            <field name="sequence" eval="20"/>
+            <field name="code">IIN</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_NODLV"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+bruto = categories.BRUTOnLV or 0.0
+res = 0.0
+
+# ar algas nodokļa grāmatiņu:
+if (not payslip.struct_id) or (payslip.struct_id and payslip.struct_id.code == 'LVNM'):
+    if bruto &lt;= 1667.0:
+        base = bruto - VSAOIdn - categories.ATVLV
+        res = base * 0.2
+
+    if bruto &gt; 1667.0 and bruto &lt;= 4583.0:
+        b1 = 1667.0 - VSAOIdn - categories.ATVLV
+        b2 = bruto - 1667.0
+        res = b1 * 0.2 + b2 * 0.23
+
+    if bruto &gt; 4583.0:
+        b1 = 1667.0 - VSAOIdn - categories.ATVLV
+        b2 = 4583.0 - 1667.0
+        b3 = bruto - 4583.0
+        res = b1 * 0.2 + b2 * 0.23 + b3 * 0.23
+
+# bez algas nodokļa grāmatiņas:
+if payslip.struct_id and payslip.struct_id.code == 'LV':
+    res = bruto * 0.23 - VSAOIdn * 0.2
+
+result = res</field>
+        </record>
+
+        <record id="hr_payroll_rule_NETO" model="hr.salary.rule">
+            <field name="name">Neto alga</field>
+            <field name="sequence" eval="21"/>
+            <field name="code">NETO</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_NETOLV"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+prec = payslip.env['decimal.precision'].precision_get('Payroll')
+
+result = categories.BRUTOLV - payslip.env['hr.payslip'].round_float(VSAOIdn, precision_digits=prec) - payslip.env['hr.payslip'].round_float(categories.NODLV, precision_digits=prec)</field>
+        </record>
+
+        <record id="hr_payroll_rule_SOD" model="hr.salary.rule">
+            <field name="name">Soda nauda</field>
+            <field name="sequence" eval="22"/>
+            <field name="code">SOD</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_IETLV"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days
+# inputs: object containing the computed inputs
+
+# Note: returned value have to be set in the variable 'result'
+
+show = False
+if inputs.SOD and inputs.SOD.amount &gt; 0.0:
+    show = True
+result = show</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+result = inputs.SOD and inputs.SOD.amount or 0.0</field>
+        </record>
+
+        <record id="hr_payroll_rule_SOD_input" model="hr.rule.input">
+            <field name="input_id" ref="l10n_lv_hr_payroll.hr_payroll_rule_SOD"/>
+            <field name="name">Soda nauda</field>
+            <field name="code">SOD</field>
+        </record>
+
+        <record id="hr_payroll_rule_ALM" model="hr.salary.rule">
+            <field name="name">Alimenti</field>
+            <field name="sequence" eval="23"/>
+            <field name="code">ALM</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_IETLV"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days
+# inputs: object containing the computed inputs
+
+# Note: returned value have to be set in the variable 'result'
+
+show = False
+if inputs.ALM and inputs.ALM.amount &gt; 0.0:
+    show = True
+result = show</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+result = inputs.ALM and inputs.ALM.amount or 0.0</field>
+        </record>
+
+        <record id="hr_payroll_rule_ALM_input" model="hr.rule.input">
+            <field name="input_id" ref="l10n_lv_hr_payroll.hr_payroll_rule_ALM"/>
+            <field name="name">Alimenti</field>
+            <field name="code">ALM</field>
+        </record>
+
+        <record id="hr_payroll_rule_IPTL" model="hr.salary.rule">
+            <field name="name">Ieturējumi, pamatojoties uz tiesas izdoto lēmumu</field>
+            <field name="sequence" eval="25"/>
+            <field name="code">IPTL</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_IETLV"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days
+# inputs: object containing the computed inputs
+
+# Note: returned value have to be set in the variable 'result'
+
+show = False
+if inputs.IPTL and inputs.IPTL.amount &gt; 0.0:
+    show = True
+result = show</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+result = inputs.IPTL and inputs.IPTL.amount or 0.0</field>
+        </record>
+
+        <record id="hr_payroll_rule_IPTL_input" model="hr.rule.input">
+            <field name="input_id" ref="l10n_lv_hr_payroll.hr_payroll_rule_IPTL"/>
+            <field name="name">Ieturējumi, pamatojoties uz tiesas izdoto lēmumu</field>
+            <field name="code">IPTL</field>
+        </record>
+
+        <record id="hr_payroll_rule_AIZD" model="hr.salary.rule">
+            <field name="name">Aizdevums</field>
+            <field name="sequence" eval="26"/>
+            <field name="code">AIZD</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_IETLV"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days
+# inputs: object containing the computed inputs
+
+# Note: returned value have to be set in the variable 'result'
+
+show = False
+if inputs.AIZD and inputs.AIZD.amount &gt; 0.0:
+    show = True
+result = show</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+result = inputs.AIZD and inputs.AIZD.amount or 0.0</field>
+        </record>
+
+        <record id="hr_payroll_rule_AIZD_input" model="hr.rule.input">
+            <field name="input_id" ref="l10n_lv_hr_payroll.hr_payroll_rule_AIZD"/>
+            <field name="name">Aizdevums</field>
+            <field name="code">AIZD</field>
+        </record>
+
+        <record id="hr_payroll_rule_IPPF" model="hr.salary.rule">
+            <field name="name">Iemaksa privātajā pensiju fondā</field>
+            <field name="sequence" eval="27"/>
+            <field name="code">IPPF</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_IETLV"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days
+# inputs: object containing the computed inputs
+
+# Note: returned value have to be set in the variable 'result'
+
+show = False
+if inputs.IPPF and inputs.IPPF.amount &gt; 0.0:
+    show = True
+result = show</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+result = inputs.IPPF and inputs.IPPF.amount or 0.0</field>
+        </record>
+
+        <record id="hr_payroll_rule_IPPF_input" model="hr.rule.input">
+            <field name="input_id" ref="l10n_lv_hr_payroll.hr_payroll_rule_IPPF"/>
+            <field name="name">Iemaksa privātajā pensiju fondā</field>
+            <field name="code">IPPF</field>
+        </record>
+
+        <record id="hr_payroll_rule_IZM" model="hr.salary.rule">
+            <field name="name">Izmaksa</field>
+            <field name="sequence" eval="28"/>
+            <field name="code">IZM</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_IZMLV"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+result = categories.NETOLV - categories.IETLV</field>
+        </record>
+
+        <record id="hr_payroll_rule_KOM" model="hr.salary.rule">
+            <field name="name">Komandējums</field>
+            <field name="sequence" eval="29"/>
+            <field name="code">KOM</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_IZMLV"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days
+# inputs: object containing the computed inputs
+
+# Note: returned value have to be set in the variable 'result'
+
+show = False
+if inputs.KOM and inputs.KOM.amount &gt; 0.0:
+    show = True
+result = show</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+result = inputs.KOM and inputs.KOM.amount or 0.0</field>
+        </record>
+
+        <record id="hr_payroll_rule_KOM_input" model="hr.rule.input">
+            <field name="input_id" ref="l10n_lv_hr_payroll.hr_payroll_rule_KOM"/>
+            <field name="name">Komandējums</field>
+            <field name="code">KOM</field>
+        </record>
+
+        <record id="hr_payroll_rule_AVN" model="hr.salary.rule">
+            <field name="name">Avanss</field>
+            <field name="sequence" eval="32"/>
+            <field name="code">AVN</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_MAKSLV"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days
+# inputs: object containing the computed inputs
+
+# Note: returned value have to be set in the variable 'result'
+
+show = False
+if inputs.AVN and inputs.AVN.amount &gt; 0.0:
+    show = True
+result = show</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+result = inputs.AVN and inputs.AVN.amount or 0.0</field>
+        </record>
+
+        <record id="hr_payroll_rule_AVN_input" model="hr.rule.input">
+            <field name="input_id" ref="l10n_lv_hr_payroll.hr_payroll_rule_AVN"/>
+            <field name="name">Avanss</field>
+            <field name="code">AVN</field>
+        </record>
+
+        <record id="hr_payroll_rule_ALG" model="hr.salary.rule">
+            <field name="name">Alga</field>
+            <field name="sequence" eval="33"/>
+            <field name="code">ALG</field>
+            <field name="category_id" ref="l10n_lv_hr_payroll.hr_payroll_category_MAKSLV"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"># Available variables:
+#----------------------
+# payslip: object containing the payslips
+# employee: hr.employee object
+# contract: hr.contract object
+# rules: object containing the rules code (previously computed)
+# categories: object containing the computed salary rule categories (sum of amount of all rules belonging to that category).
+# worked_days: object containing the computed worked days.
+# inputs: object containing the computed inputs.
+
+# Note: returned value have to be set in the variable 'result'
+
+result = categories.IZMLV - (inputs.AVN and inputs.AVN.amount or 0.0)</field>
+        </record>
+
+        <!-- Salary Structures -->
+
+        <record id="hr_payroll_structure_LV" model="hr.payroll.structure">
+            <field name="code">LV</field>
+            <field name="name">Latvijas algu aprēķins</field>
+            <field name="rule_ids" eval="[
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_LD')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_PIEM')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_PIEMV')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_ATVAL')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_ATVALk')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_SLA')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_SLB')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_IPPFB')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_RN')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_VSAOIdd')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_DDKI')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_VSAOIdn')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_APG')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_INV')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_IIN')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_NETO')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_SOD')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_ALM')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_IPTL')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_AIZD')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_IPPF')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_IZM')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_KOM')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_AVN')),
+                (4, ref('l10n_lv_hr_payroll.hr_payroll_rule_ALG'))
+            ]"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <record id="hr_payroll_structure_LVNM" model="hr.payroll.structure">
+            <field name="code">LVNM</field>
+            <field name="name">Latvijas algu aprēķins ar neapliekamo minimumu</field>
+            <field name="rule_ids" eval="[(4, ref('l10n_lv_hr_payroll.hr_payroll_rule_NM'))]"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="parent_id" ref="l10n_lv_hr_payroll.hr_payroll_structure_LV"/>
+        </record>
+
+    </data>
+</odoo>

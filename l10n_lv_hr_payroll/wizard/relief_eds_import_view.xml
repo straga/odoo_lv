@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="relief_eds_import_view" model="ir.ui.view">
+        <field name="name">Import Tax Relief EDS File</field>
+        <field name="model">relief.eds.import</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <form string="Import Tax Relief EDS File">
+                <group>
+                    <field name="eds_fname" invisible="1"/>
+                    <field name="eds_file" filename="eds_fname"/>
+                    <field name="employee_ids" widget="many2many_tags" invisible="1"/>
+                </group>
+                <footer>
+                    <button name="eds_file_parsing" string="Import" type="object" class="oe_highlight"/>
+                    <button string="Cancel" class="oe_link" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <act_window id="relief_eds_import" name="Import Tax Relief EDS File"
+            src_model="hr.employee"
+            res_model="relief.eds.import"
+            view_mode="form"
+            view_type="form"
+            target="new"
+            key2="client_action_multi"
+            context="{'default_employee_ids': active_ids}"/>
+
+</odoo>

@@ -1,5 +1,7 @@
 # odoo_lv
 
+
+l10n_lv_hr_payroll
 l10n_lv_account_bank_statement_import -> l10n_lv_account_statement_import: rename 
 https://github.com/odoo-latvia/l10n_lv_addons/tree/14.0
 original: commit/fb6f0cd8b72683868aa5e3f27c5a834b833ed3a2
