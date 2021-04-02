@@ -44,7 +44,7 @@ After the installation of this module you should:
     'author': 'Allegro IT',
     'website': 'http://www.allegro.lv',
     'category': 'Localization',
-    'depends': ['hr_payroll'],
+    'depends': ['om_hr_payroll'],
     'data': [
         'security/ir.model.access.csv',
         'views/hr_payroll_views.xml',

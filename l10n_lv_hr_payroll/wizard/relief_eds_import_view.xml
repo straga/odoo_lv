@@ -20,13 +20,23 @@
         </field>
     </record>
 
-    <act_window id="relief_eds_import" name="Import Tax Relief EDS File"
-            src_model="hr.employee"
-            res_model="relief.eds.import"
-            view_mode="form"
-            view_type="form"
-            target="new"
-            key2="client_action_multi"
-            context="{'default_employee_ids': active_ids}"/>
+    <record id="relief_eds_import" model="ir.actions.act_window">
+        <field name="name">Import Tax Relief EDS File</field>
+        <field name="res_model">relief.eds.import</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_employee_ids': active_ids}</field>
+        <field name="binding_model_id" ref="model_hr_employee" />
+        <field name="binding_view_types">form</field>
+    </record>
+
+<!--    <act_window id="relief_eds_import" name="Import Tax Relief EDS File"-->
+<!--            src_model="hr.employee"-->
+<!--            res_model="relief.eds.import"-->
+<!--            view_mode="form"-->
+<!--            view_type="form"-->
+<!--            target="new"-->
+<!--            key2="client_action_multi"-->
+<!--            context="{'default_employee_ids': active_ids}"/>-->
 
 </odoo>

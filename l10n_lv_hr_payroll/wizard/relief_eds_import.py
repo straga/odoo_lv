@@ -39,7 +39,7 @@ class ReliefEDSImport(models.TransientModel):
     eds_fname = fields.Char(string='EDS File Name')
     employee_ids = fields.Many2many('hr.employee', string='Employees', default=_get_default_employees)
 
-    @api.multi
+
     def eds_file_parsing(self):
         self.ensure_one()
         record = str(base64.b64decode(self.eds_file), 'iso8859-4', 'strict').encode('iso8859-4','strict')

@@ -183,7 +183,7 @@ class PayslipEDSExport(models.TransientModel):
                         pit += pl.total
         return pit
 
-    @api.multi
+
     def create_xml(self):
         self.ensure_one()
 
