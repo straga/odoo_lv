@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_hr_employee_relief_manager,hr.employee.relief.manager,model_hr_employee_relief,hr.group_hr_manager,1,1,1,1
 access_hr_employee_relief_user,hr.employee.relief.user,model_hr_employee_relief,base.group_user,1,0,0,0
+access_payslip_eds_export,payslip.eds.export,model_payslip_eds_export,hr.group_hr_manager,1,1,1,1
+access_relief_eds_import,relief.eds.import,model_relief_eds_import,hr.group_hr_manager,1,1,1,1
