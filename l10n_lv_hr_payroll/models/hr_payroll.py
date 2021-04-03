@@ -185,7 +185,7 @@ class HrPayslip(models.Model):
                     })
         return res
 
-    @api.model
+    # @api.model
     def reload_inputs(self):
         self.ensure_one()
         wd_line_vals = self.get_worked_day_lines(self.contract_id, self.date_from, self.date_to)
